@@ -7,13 +7,13 @@
 
   <!-- Servlets -->
   <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>com.google.gwt.sample.stockwatcher.server.GreetingServiceImpl</servlet-class>
+    <servlet-name>stockPriceServiceImpl</servlet-name>
+    <servlet-class>com.google.gwt.sample.stockwatcher.server.StockPriceServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/stockwatcher/greet</url-pattern>
+    <servlet-name>stockPriceServiceImpl</servlet-name>
+    <url-pattern>/stockwatcher/stockPrices</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->
