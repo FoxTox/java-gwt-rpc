@@ -5,12 +5,12 @@ import com.foxtox.rpc.example.client.SumService;
 public class SumServiceImpl implements SumService {
 
 	@Override
-	public int getSum(int a, int b) {
+	public Integer getSum(Integer a, Integer b) {
 		return a + b;
 	}
 
 	@Override
-	public double getSum(double a, double b) {
+	public Double getSum(Double a, Double b) {
 		return a + b;
 	}
 
