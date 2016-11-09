@@ -4,6 +4,7 @@
   "http://google-web-toolkit.googlecode.com/svn/releases/2.0/distro-source/core/src/gwt-module.dtd"
   >
 <module>
+	<inherits name="com.foxtox.rpc.client.RpcClient" />
 	<inherits name="com.foxtox.rpc.client.gwt.RpcClientGwt" />
 	<inherits name="com.foxtox.rpc.common.RpcCommon" />
 	<inherits name="com.google.gwt.user.User" />
