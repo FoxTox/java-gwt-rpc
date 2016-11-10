@@ -11,25 +11,25 @@ import com.foxtox.rpc.common.ResponseSerializer;
 
 public class JsonResponseSerializer implements ResponseSerializer {
 
-	public byte[] serializeResult(Object result) {
-		requestObjectBuilder.add("result", result.toString());
-		return finish();
-	}
+  public byte[] serializeResult(Object result) {
+    requestObjectBuilder.add("result", result.toString());
+    return finish();
+  }
 
-	public byte[] serializeError(String reason) {
-		requestObjectBuilder.add("error", reason);
-		return finish();
-	}
+  public byte[] serializeError(String reason) {
+    requestObjectBuilder.add("error", reason);
+    return finish();
+  }
 
-	private byte[] finish() {
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		JsonWriter jsonWriter = Json.createWriter(output);
-		JsonObject obj = requestObjectBuilder.build();
-		jsonWriter.writeObject(obj);
-		jsonWriter.close();
-		return output.toByteArray();
-	}
+  private byte[] finish() {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    JsonWriter jsonWriter = Json.createWriter(output);
+    JsonObject obj = requestObjectBuilder.build();
+    jsonWriter.writeObject(obj);
+    jsonWriter.close();
+    return output.toByteArray();
+  }
 
-	private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
+  private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
 
 }

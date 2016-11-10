@@ -9,11 +9,11 @@ import com.foxtox.rpc.server.RemoteServiceServlet;
 @WebServlet(urlPatterns = "/sum")
 public class SumServiceRpcServlet extends RemoteServiceServlet implements SumService {
 
-	public Integer getSum(Integer first, Integer second) {
-		return first + second;
-	}
+  public Integer getSum(Integer first, Integer second) {
+    return first + second;
+  }
 
-	public Double getSum(Double first, Double second) {
-		return first + second;
-	}
+  public Double getSum(Double first, Double second) {
+    return first + second;
+  }
 }

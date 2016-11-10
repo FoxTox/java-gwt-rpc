@@ -12,20 +12,20 @@ import com.foxtox.rpc.common.RpcResponse;
 import com.foxtox.rpc.common.SerializableType;
 
 public class JsonResponseDeserializer implements ResponseDeserializer {
-	
-	public RpcResponse deserialize(SerializableType type, byte[] data) {
-		RpcResponse response = new RpcResponse();
-		
-		JsonReader jsonReader = Json.createReader(new ByteArrayInputStream(data));
-		JsonObject object = jsonReader.readObject();
-		
-		JsonString errorString = object.getJsonString("error");
-		if (errorString != null) {
-			response.setError(errorString.getString());
-			return response;
-		}
-		response.setResult(type.parseFromString(object.getString("result")));
-		return response;
-	}
+
+  public RpcResponse deserialize(SerializableType type, byte[] data) {
+    RpcResponse response = new RpcResponse();
+
+    JsonReader jsonReader = Json.createReader(new ByteArrayInputStream(data));
+    JsonObject object = jsonReader.readObject();
+
+    JsonString errorString = object.getJsonString("error");
+    if (errorString != null) {
+      response.setError(errorString.getString());
+      return response;
+    }
+    response.setResult(type.parseFromString(object.getString("result")));
+    return response;
+  }
 
 }

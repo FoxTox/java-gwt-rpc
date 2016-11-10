@@ -16,76 +16,74 @@ import com.google.gwt.http.client.Response;
 // TODO: Generate this with a generator.
 public class SumServiceAsyncImpl implements SumServiceAsync {
 
-	public void getSum(Integer first, Integer second, final AsyncCallback<Integer> callback) {
-		// TODO: Make the URL configurable.
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, "/sum");
+  public void getSum(Integer first, Integer second, final AsyncCallback<Integer> callback) {
+    // TODO: Make the URL configurable.
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, "/sum");
 
-		RequestSerializer serializer = new JsonRequestSerializer();
-		serializer.setServiceName("com.foxtox.rpc.client.example.SumService");
-		serializer.setServiceMethod("getSum");
-		serializer.addParameter(first);
-		serializer.addParameter(second);
-		builder.setRequestData(new String(serializer.serialize()));
+    RequestSerializer serializer = new JsonRequestSerializer();
+    serializer.setServiceName("com.foxtox.rpc.client.example.SumService");
+    serializer.setServiceMethod("getSum");
+    serializer.addParameter(first);
+    serializer.addParameter(second);
+    builder.setRequestData(new String(serializer.serialize()));
 
-		builder.setCallback(new RequestCallback() {
-			public void onResponseReceived(Request request, Response response) {
-				ResponseDeserializer deserializer = new JsonResponseDeserializer();
-				RpcResponse rpcResponse = deserializer.deserialize(SerializableType.INTEGER,
-						response.getText().getBytes());
+    builder.setCallback(new RequestCallback() {
+      public void onResponseReceived(Request request, Response response) {
+        ResponseDeserializer deserializer = new JsonResponseDeserializer();
+        RpcResponse rpcResponse = deserializer.deserialize(SerializableType.INTEGER, response.getText().getBytes());
 
-				if (rpcResponse.getType() == RpcResponse.Type.SUCCESS)
-					callback.onSuccess((Integer) rpcResponse.getResult());
-				else if (rpcResponse.getType() == RpcResponse.Type.ERROR)
-					callback.onFailure(rpcResponse.getError());
-				else
-					callback.onFailure("Received wrong response type: " + rpcResponse.getType());
-			}
+        if (rpcResponse.getType() == RpcResponse.Type.SUCCESS)
+          callback.onSuccess((Integer) rpcResponse.getResult());
+        else if (rpcResponse.getType() == RpcResponse.Type.ERROR)
+          callback.onFailure(rpcResponse.getError());
+        else
+          callback.onFailure("Received wrong response type: " + rpcResponse.getType());
+      }
 
-			public void onError(Request request, Throwable throwable) {
-				callback.onFailure("RPC Error: " + throwable);
-			}
-		});
-		try {
-			builder.send();
-		} catch (RequestException e) {
-			// Ignore.
-		}
-	}
+      public void onError(Request request, Throwable throwable) {
+        callback.onFailure("RPC Error: " + throwable);
+      }
+    });
+    try {
+      builder.send();
+    } catch (RequestException e) {
+      // Ignore.
+    }
+  }
 
-	public void getSum(Double first, Double second, final AsyncCallback<Double> callback) {
-		// TODO: Make the URL configurable.
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, "/sum");
+  public void getSum(Double first, Double second, final AsyncCallback<Double> callback) {
+    // TODO: Make the URL configurable.
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, "/sum");
 
-		RequestSerializer serializer = new JsonRequestSerializer();
-		serializer.setServiceName("com.foxtox.rpc.client.example.SumService");
-		serializer.setServiceMethod("getSum");
-		serializer.addParameter(first);
-		serializer.addParameter(second);
-		builder.setRequestData(new String(serializer.serialize()));
+    RequestSerializer serializer = new JsonRequestSerializer();
+    serializer.setServiceName("com.foxtox.rpc.client.example.SumService");
+    serializer.setServiceMethod("getSum");
+    serializer.addParameter(first);
+    serializer.addParameter(second);
+    builder.setRequestData(new String(serializer.serialize()));
 
-		builder.setCallback(new RequestCallback() {
-			public void onResponseReceived(Request request, Response response) {
-				ResponseDeserializer deserializer = new JsonResponseDeserializer();
-				RpcResponse rpcResponse = deserializer.deserialize(SerializableType.DOUBLE,
-						response.getText().getBytes());
+    builder.setCallback(new RequestCallback() {
+      public void onResponseReceived(Request request, Response response) {
+        ResponseDeserializer deserializer = new JsonResponseDeserializer();
+        RpcResponse rpcResponse = deserializer.deserialize(SerializableType.DOUBLE, response.getText().getBytes());
 
-				if (rpcResponse.getType() == RpcResponse.Type.SUCCESS)
-					callback.onSuccess((Double) rpcResponse.getResult());
-				else if (rpcResponse.getType() == RpcResponse.Type.ERROR)
-					callback.onFailure(rpcResponse.getError());
-				else
-					callback.onFailure("Received wrong response type: " + rpcResponse.getType());
-			}
+        if (rpcResponse.getType() == RpcResponse.Type.SUCCESS)
+          callback.onSuccess((Double) rpcResponse.getResult());
+        else if (rpcResponse.getType() == RpcResponse.Type.ERROR)
+          callback.onFailure(rpcResponse.getError());
+        else
+          callback.onFailure("Received wrong response type: " + rpcResponse.getType());
+      }
 
-			public void onError(Request request, Throwable throwable) {
-				callback.onFailure("RPC Error: " + throwable);
-			}
-		});
-		try {
-			builder.send();
-		} catch (RequestException e) {
-			// Ignore.
-		}
-	}
+      public void onError(Request request, Throwable throwable) {
+        callback.onFailure("RPC Error: " + throwable);
+      }
+    });
+    try {
+      builder.send();
+    } catch (RequestException e) {
+      // Ignore.
+    }
+  }
 
 }

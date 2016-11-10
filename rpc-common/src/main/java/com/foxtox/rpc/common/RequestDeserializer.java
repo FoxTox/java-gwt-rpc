@@ -1,5 +1,5 @@
 package com.foxtox.rpc.common;
 
 public interface RequestDeserializer {
-	RpcRequest deserialize(byte[] data);
+  RpcRequest deserialize(byte[] data);
 }

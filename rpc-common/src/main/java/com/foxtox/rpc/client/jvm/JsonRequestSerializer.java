@@ -16,7 +16,7 @@ public class JsonRequestSerializer implements RequestSerializer {
 		requestObjectBuilder.add("service", serviceName);
 	}
 
-	public void setServiceMethod(String serviceMethod) {
+  public void setServiceMethod(String serviceMethod) {
 		requestObjectBuilder.add("method", serviceMethod);
 	}
 
