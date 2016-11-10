@@ -6,7 +6,8 @@ import com.foxtox.rpc.client.RPC;
 // import com.turbomanage.httpclient.*;
 
 public class Main {
-  // private static final String URL = "http://localhost:8080";
+  private static final String serverAddress = "http://localhost:8888";
+  private static final int first = 10, second = 20;
   
   /*
   public static void main(String[] args) {
@@ -19,15 +20,16 @@ public class Main {
   */
 
   public static void main(String[] args) {
-    SumServiceAsync f = (SumServiceAsync) RPC.create(SumServiceAsync.class);
-    f.getSum(10, 20, new AsyncCallback<Integer>() {
+    SumServiceAsync f = (SumServiceAsync) RPC.create(SumServiceAsync.class, serverAddress);
+    f.getSum(first, second, new AsyncCallback<Integer>() {
       public void onSuccess(Integer result) {
-        System.out.println("Success: " + result);
+        System.out.println("Success: " + first + " + " + second + " == " + result);
       }
 
       public void onFailure(String reason) {
         System.out.println("Failure: " + reason);
       }
     });
+    // FIXME: Wait here until the request is done.
   }
 }

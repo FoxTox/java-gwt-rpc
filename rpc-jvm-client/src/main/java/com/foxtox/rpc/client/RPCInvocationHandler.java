@@ -18,6 +18,10 @@ import com.foxtox.rpc.common.RpcResponse;
 import com.foxtox.rpc.common.SerializableType;
 
 public class RPCInvocationHandler implements InvocationHandler {
+  
+  public RPCInvocationHandler(URL serverURL) {
+    this.serverURL = serverURL;
+  }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -42,10 +46,8 @@ public class RPCInvocationHandler implements InvocationHandler {
 
     AsyncCallback callback = (AsyncCallback) args[args.length - 1];
     try {
-      // TODO: Adjust the server.
-      URL url = new URL("http://127.0.0.1:8888/sum");
       // TODO: Async connection.
-      HttpURLConnection servletConnection = (HttpURLConnection) url.openConnection();
+      HttpURLConnection servletConnection = (HttpURLConnection) serverURL.openConnection();
       servletConnection.setRequestMethod("POST");
       servletConnection.setDoOutput(true);
 
@@ -84,8 +86,6 @@ public class RPCInvocationHandler implements InvocationHandler {
       throw new Exception(errorMessage);
   }
 
-  private static final int BUFFER_SIZE = 4096;
-
   protected byte[] readAll(InputStream input) throws IOException {
     byte[] buffer = new byte[BUFFER_SIZE];
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -97,5 +97,9 @@ public class RPCInvocationHandler implements InvocationHandler {
     }
     return output.toByteArray();
   }
+  
+  private static final int BUFFER_SIZE = 4096;
+  
+  private URL serverURL;
 
 }
