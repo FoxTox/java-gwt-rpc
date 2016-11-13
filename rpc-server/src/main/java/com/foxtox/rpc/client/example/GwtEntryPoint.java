@@ -8,17 +8,26 @@ import com.google.gwt.user.client.Window;
 public class GwtEntryPoint implements EntryPoint {
 
   public void onModuleLoad() {
-    final Integer first = 10, second = 20;
+    final Integer iFirst = 10, iSecond = 20;
+    final Double dFirst = 10.1, dSecond = 30.6;
 
     SumServiceAsync sumService = (SumServiceAsync) GWT.create(SumService.class);
 
-    // SumServiceAsync sumService = new SumServiceAsyncImplTemplate();
-    sumService.getSum(first, second, new AsyncCallback<Integer>() {
+    sumService.getSum(iFirst, iSecond, new AsyncCallback<Integer>() {
       public void onSuccess(Integer returnValue) {
-        Window.alert(first + " + " + second + " == " + returnValue);
+        Window.alert(iFirst + " + " + iSecond + " == " + returnValue);
       }
       public void onFailure(String reason) {
-        Window.alert("Failed to compute " + first + " + " + second + ". Reason:\n" + reason);
+        Window.alert("Failed to compute " + iFirst + " + " + iSecond + ". Reason:\n" + reason);
+      }
+    });
+    
+    sumService.getSum(dFirst, dSecond, new AsyncCallback<Double>() {
+      public void onSuccess(Double returnValue) {
+        Window.alert(dFirst + " + " + dSecond + " == " + returnValue);
+      }
+      public void onFailure(String reason) {
+        Window.alert("Failed to compute " + dFirst + " + " + dSecond + ". Reason:\n" + reason);
       }
     });
   }
