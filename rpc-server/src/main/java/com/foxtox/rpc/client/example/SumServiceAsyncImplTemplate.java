@@ -14,7 +14,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 
 // TODO: Generate this with a generator.
-public class SumServiceAsyncImpl implements SumServiceAsync {
+public class SumServiceAsyncImplTemplate implements SumServiceAsync {
 
   public void getSum(Integer first, Integer second, final AsyncCallback<Integer> callback) {
     // TODO: Make the URL configurable.

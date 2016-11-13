@@ -12,4 +12,8 @@
 	<source path="" />
 
 	<entry-point class="com.foxtox.rpc.client.example.GwtEntryPoint" />
+	
+	<generate-with class="com.foxtox.rpc.rebind.RemoteServiceClientGenerator">
+		<when-type-assignable class="com.foxtox.rpc.client.RemoteService" />
+	</generate-with>
 </module>
