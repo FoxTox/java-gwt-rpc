@@ -1,14 +1,12 @@
 package com.foxtox.rpc.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.Response;
 
 import com.foxtox.rpc.client.jvm.JsonRequestSerializer;
 import com.foxtox.rpc.client.jvm.JsonResponseDeserializer;
@@ -18,9 +16,9 @@ import com.foxtox.rpc.common.RpcResponse;
 import com.foxtox.rpc.common.SerializableType;
 
 public class RPCInvocationHandler implements InvocationHandler {
-  
-  public RPCInvocationHandler(URL serverURL) {
-    this.serverURL = serverURL;
+
+  public RPCInvocationHandler(String serverAddress) {
+    this.serverAddress = serverAddress;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -40,42 +38,51 @@ public class RPCInvocationHandler implements InvocationHandler {
     ParameterizedType returnType = (ParameterizedType) paramTypes[paramTypes.length - 1];
     check(returnType.getActualTypeArguments().length == 1, "Expected exactly 1 type parameter.");
     Type actualReturnType = returnType.getActualTypeArguments()[0];
-    Class<?> actualReturnClass = Class.forName(actualReturnType.getTypeName());
+    final Class<?> actualReturnClass = Class.forName(actualReturnType.getTypeName());
 
     check(method.getReturnType().equals(void.class), "The method should return void.");
 
-    AsyncCallback callback = (AsyncCallback) args[args.length - 1];
+    final AsyncCallback callback = (AsyncCallback) args[args.length - 1];
+
+    String ifaceName = method.getDeclaringClass().getCanonicalName();
+    check(ifaceName.endsWith("Async"), "Interface should be Async");
+    ifaceName = ifaceName.substring(0, ifaceName.length() - 5);
+
+    RequestSerializer serializer = new JsonRequestSerializer();
+    serializer.setServiceName(ifaceName);
+    serializer.setServiceMethod(method.getName());
+    for (int i = 0; i + 1 < args.length; ++i)
+      serializer.addParameter(args[i]);
+
     try {
-      // TODO: Async connection.
-      HttpURLConnection servletConnection = (HttpURLConnection) serverURL.openConnection();
-      servletConnection.setRequestMethod("POST");
-      servletConnection.setDoOutput(true);
+      RPC.getAsyncHttpClient().preparePost(serverAddress).setBody(serializer.serialize())
+          .execute(new AsyncCompletionHandler<Response>() {
+            @Override
+            public Response onCompleted(Response response) throws Exception {
+              ResponseDeserializer deserializer = new JsonResponseDeserializer();
+              byte[] requestData = response.getResponseBodyAsBytes();
+              SerializableType responseType = SerializableType.getFrom(actualReturnClass);
+              RpcResponse rpcResponse = deserializer.deserialize(responseType, requestData);
 
-      String ifaceName = method.getDeclaringClass().getCanonicalName();
-      check(ifaceName.endsWith("Async"), "Interface should be Async");
-      ifaceName = ifaceName.substring(0, ifaceName.length() - 5);
+              assert (rpcResponse.getType() != RpcResponse.Type.UNDEFINED);
+              if (rpcResponse.getType() == RpcResponse.Type.SUCCESS) {
+                callback.onSuccess(rpcResponse.getResult());
+              } else {
+                // response.getType() == RpcResponse.Type.ERROR
+                callback.onFailure(rpcResponse.getError());
+              }
 
-      RequestSerializer serializer = new JsonRequestSerializer();
-      serializer.setServiceName(ifaceName);
-      serializer.setServiceMethod(method.getName());
-      for (int i = 0; i + 1 < args.length; ++i)
-        serializer.addParameter(args[i]);
-      servletConnection.getOutputStream().write(serializer.serialize());
+              return response;
+            }
 
-      ResponseDeserializer deserializer = new JsonResponseDeserializer();
-      byte[] requestData = readAll(servletConnection.getInputStream());
-      SerializableType responseType = SerializableType.getFrom(actualReturnClass);
-      RpcResponse response = deserializer.deserialize(responseType, requestData);
+            @Override
+            public void onThrowable(Throwable t) {
+              callback.onFailure("RPC failed with Throwable: " + t);
+            }
+          });
 
-      assert (response.getType() != RpcResponse.Type.UNDEFINED);
-      if (response.getType() == RpcResponse.Type.SUCCESS) {
-        callback.onSuccess(response.getResult());
-      } else {
-        // response.getType() == RpcResponse.Type.ERROR
-        callback.onFailure(response.getError());
-      }
     } catch (Exception e) {
-      callback.onFailure(e.toString());
+      callback.onFailure("RPC failed with Exception: " + e);
     }
 
     return null;
@@ -86,20 +93,6 @@ public class RPCInvocationHandler implements InvocationHandler {
       throw new Exception(errorMessage);
   }
 
-  protected byte[] readAll(InputStream input) throws IOException {
-    byte[] buffer = new byte[BUFFER_SIZE];
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    while (true) {
-      int byteCount = input.read(buffer);
-      if (byteCount == -1)
-        break;
-      output.write(buffer, 0, byteCount);
-    }
-    return output.toByteArray();
-  }
-  
-  private static final int BUFFER_SIZE = 4096;
-  
-  private URL serverURL;
+  private String serverAddress;
 
 }
