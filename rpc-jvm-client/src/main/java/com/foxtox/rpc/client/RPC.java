@@ -13,8 +13,22 @@ public class RPC {
   private static AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
 
   public static Object create(Class<?> cls, String serverAddress) {
-    // TODO: Get path from the class annotations.
-    String serviceURL = serverAddress + "/sum";
+    String asyncServiceName = cls.getCanonicalName();
+    assert asyncServiceName.substring(asyncServiceName.length() - 5).equals("Async");
+
+    Class<?> syncServiceClass = null;
+    try {
+      syncServiceClass = Class
+          .forName(asyncServiceName.substring(0, asyncServiceName.length() - 5));
+    } catch (Exception e) {
+      assert false;
+    }
+
+    RemoteServiceRelativePath annotation = syncServiceClass
+        .getAnnotation(RemoteServiceRelativePath.class);
+    assert annotation != null;
+
+    String serviceURL = serverAddress + annotation.value();
     try {
       return Proxy.newProxyInstance(cls.getClassLoader(), new Class[] { cls },
           new RPCInvocationHandler(serviceURL));

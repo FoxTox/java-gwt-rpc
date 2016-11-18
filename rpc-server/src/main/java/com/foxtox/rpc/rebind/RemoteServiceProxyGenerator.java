@@ -3,6 +3,7 @@ package com.foxtox.rpc.rebind;
 import java.io.PrintWriter;
 
 import com.foxtox.rpc.client.AsyncCallback;
+import com.foxtox.rpc.client.RemoteServiceRelativePath;
 import com.foxtox.rpc.common.SerializableType;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
@@ -18,12 +19,13 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
 public class RemoteServiceProxyGenerator extends Generator {
-  
+
   private TreeLogger logger;
   private GeneratorContext context;
   private SourceWriter sourceWriter;
 
   private JClassType serviceInterface;
+  private String serviceRelativePath;
 
   @Override
   public String generate(TreeLogger logger, GeneratorContext context, String requestedClass)
@@ -35,6 +37,14 @@ public class RemoteServiceProxyGenerator extends Generator {
     serviceInterface = typeOracle.findType(requestedClass);
     if (serviceInterface == null)
       logErrorAndThrow("Couldn't find type: " + requestedClass);
+
+    RemoteServiceRelativePath annotation = serviceInterface
+        .getAnnotation(RemoteServiceRelativePath.class);
+    if (annotation == null) {
+      logErrorAndThrow("RemoteServiceRelativePath annotation is not provided for "
+          + serviceInterface.getQualifiedSourceName());
+    }
+    serviceRelativePath = annotation.value();
 
     String asyncServiceQualifiedName = serviceInterface.getQualifiedSourceName() + "Async";
     String implQualifiedName = asyncServiceQualifiedName + "Impl";
@@ -69,7 +79,8 @@ public class RemoteServiceProxyGenerator extends Generator {
   }
 
   private void printMethodParameter(JParameter param) {
-    sourceWriter.print("%s %s", param.getType().getParameterizedQualifiedSourceName(), param.getName());
+    sourceWriter.print("%s %s", param.getType().getParameterizedQualifiedSourceName(),
+        param.getName());
   }
 
   private void printAsyncMethod(JMethod method) throws UnableToCompleteException {
@@ -88,15 +99,18 @@ public class RemoteServiceProxyGenerator extends Generator {
     } catch (NotFoundException exc) {
       logErrorAndThrow("AsyncCallback class not found.");
     }
-    if (callbackType.getErasedType().getQualifiedSourceName() != asyncCallbackType.getQualifiedSourceName())
+    if (callbackType.getErasedType().getQualifiedSourceName() != asyncCallbackType
+        .getQualifiedSourceName())
       logErrorAndThrow("Last method's parameter should be AsyncCallback: " + method.getName());
 
     JClassType resultType = callbackType.getTypeArgs()[0];
     SerializableType serializableResultType = null;
     try {
-      serializableResultType = SerializableType.getFrom(Class.forName(resultType.getQualifiedSourceName()));
+      serializableResultType = SerializableType
+          .getFrom(Class.forName(resultType.getQualifiedSourceName()));
     } catch (ClassNotFoundException exc) {
-      logErrorAndThrow("Couldn't find java Class for result type: " + resultType.getQualifiedSourceName());
+      logErrorAndThrow(
+          "Couldn't find java Class for result type: " + resultType.getQualifiedSourceName());
     }
     if (serializableResultType == SerializableType.UNSUPPORTED)
       logErrorAndThrow("Unsupported SerializableType: " + resultType.getQualifiedSourceName());
@@ -117,10 +131,11 @@ public class RemoteServiceProxyGenerator extends Generator {
     sourceWriter.println(") {");
     sourceWriter.indent();
     {
-      // TODO: Replace "/sum" by a path extracted from annotations.
-      sourceWriter.println("RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, \"/sum\");");
+      sourceWriter.println("RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, \""
+          + serviceRelativePath + "\");");
       sourceWriter.println("RequestSerializer serializer = new JsonRequestSerializer();");
-      sourceWriter.println("serializer.setServiceName(\"" + serviceInterface.getQualifiedSourceName() + "\");");
+      sourceWriter.println(
+          "serializer.setServiceName(\"" + serviceInterface.getQualifiedSourceName() + "\");");
       sourceWriter.println("serializer.setServiceMethod(\"" + method.getName() + "\");");
       // Iterate through all parameters except the last one, which is
       // AsyncCallback.
@@ -134,20 +149,24 @@ public class RemoteServiceProxyGenerator extends Generator {
       sourceWriter.println("builder.setCallback(new RequestCallback() {");
       sourceWriter.indent();
       {
-        sourceWriter.println("public void onResponseReceived(Request request, Response response) {");
+        sourceWriter
+            .println("public void onResponseReceived(Request request, Response response) {");
         sourceWriter.indent();
         {
-          sourceWriter.println("ResponseDeserializer deserializer = new JsonResponseDeserializer();");
-          sourceWriter.println("RpcResponse rpcResponse = deserializer.deserialize(SerializableType."
-              + serializableResultType.toString() + ", response.getText().getBytes());");
+          sourceWriter
+              .println("ResponseDeserializer deserializer = new JsonResponseDeserializer();");
+          sourceWriter
+              .println("RpcResponse rpcResponse = deserializer.deserialize(SerializableType."
+                  + serializableResultType.toString() + ", response.getText().getBytes());");
 
           sourceWriter.println("if (rpcResponse.getType() == RpcResponse.Type.SUCCESS)");
-          sourceWriter
-              .indentln("callback.onSuccess((" + resultType.getQualifiedSourceName() + ") rpcResponse.getResult());");
+          sourceWriter.indentln("callback.onSuccess((" + resultType.getQualifiedSourceName()
+              + ") rpcResponse.getResult());");
           sourceWriter.println("else if (rpcResponse.getType() == RpcResponse.Type.ERROR)");
           sourceWriter.indentln("callback.onFailure(rpcResponse.getError());");
           sourceWriter.println("else");
-          sourceWriter.indentln("callback.onFailure(\"Received wrong response type: \" + rpcResponse.getType());");
+          sourceWriter.indentln(
+              "callback.onFailure(\"Received wrong response type: \" + rpcResponse.getType());");
         }
         sourceWriter.outdent();
         sourceWriter.println("}\n");
