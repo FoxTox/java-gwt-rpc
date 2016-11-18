@@ -23,7 +23,19 @@ import com.foxtox.rpc.common.RpcRequest;
 @SuppressWarnings("serial")
 public class RemoteServiceServlet extends HttpServlet {
 
+  private class ServiceInfo {
+    public Class<?> iface;
+    public Object impl;
+
+    public ServiceInfo(Class<?> iface, Object impl) {
+      this.iface = iface;
+      this.impl = impl;
+    }
+  };
+
   private static final int BUFFER_SIZE = 4096;
+  
+  private Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
 
   public RemoteServiceServlet() {
     try {
@@ -48,7 +60,8 @@ public class RemoteServiceServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     response.setContentType("application/json");
     response.setStatus(HttpServletResponse.SC_OK);
     ResponseSerializer serializer = new JsonResponseSerializer();
@@ -63,7 +76,8 @@ public class RemoteServiceServlet extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);
     PrintWriter writer = response.getWriter();
@@ -93,8 +107,8 @@ public class RemoteServiceServlet extends HttpServlet {
     return output.toByteArray();
   }
 
-  protected void processPost(HttpServletRequest request, HttpServletResponse response, ResponseSerializer serializer)
-      throws Exception {
+  protected void processPost(HttpServletRequest request, HttpServletResponse response,
+      ResponseSerializer serializer) throws Exception {
     byte[] content = readContent(request);
     RequestDeserializer deserializer = new JsonRequestDeserializer();
     RpcRequest rpcRequest = deserializer.deserialize(content);
@@ -111,25 +125,12 @@ public class RemoteServiceServlet extends HttpServlet {
     }
     Method method = service.iface.getMethod(rpcRequest.getServiceMethod(), paramTypes);
     if (method == null) {
-      throw new Exception("Method " + rpcRequest.getServiceName() + "." + rpcRequest.getServiceMethod() + " not found");
+      throw new Exception("Method " + rpcRequest.getServiceName() + "."
+          + rpcRequest.getServiceMethod() + " not found");
     }
 
     Object result = method.invoke(service.iface.cast(service.impl), params);
     response.getOutputStream().write(serializer.serializeResult(result));
   }
-
-  // =========================================================================
-
-  private class ServiceInfo {
-    public Class<?> iface;
-    public Object impl;
-
-    public ServiceInfo(Class<?> iface, Object impl) {
-      this.iface = iface;
-      this.impl = impl;
-    }
-  };
-
-  private Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
 
 }

@@ -5,6 +5,10 @@ public class RpcResponse {
   public enum Type {
     UNDEFINED, SUCCESS, ERROR,
   }
+  
+  private Type type = Type.UNDEFINED;
+  private Object result;
+  private String error;
 
   public Type getType() {
     return type;
@@ -29,8 +33,5 @@ public class RpcResponse {
     this.type = Type.ERROR;
     this.error = error;
   }
-
-  private Type type;
-  private Object result;
-  private String error;
+  
 }

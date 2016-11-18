@@ -17,13 +17,16 @@ import com.foxtox.rpc.common.SerializableType;
 
 public class RPCInvocationHandler implements InvocationHandler {
 
+  private String serverAddress;
+
   public RPCInvocationHandler(String serverAddress) {
     this.serverAddress = serverAddress;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    check(!method.getDeclaringClass().equals(Object.class), "java.lang.Object methods should not be called.");
+    check(!method.getDeclaringClass().equals(Object.class),
+        "java.lang.Object methods should not be called.");
 
     // TODO: Cache method signature checks.
     Class<?>[] paramClasses = method.getParameterTypes();
@@ -32,7 +35,8 @@ public class RPCInvocationHandler implements InvocationHandler {
     check(paramTypes.length >= 1, "Too few parameters.");
 
     Class<?> returnClass = paramClasses[paramClasses.length - 1];
-    check(returnClass.equals(AsyncCallback.class), "The last parameter should be AsyncCallback<ReturnType>.");
+    check(returnClass.equals(AsyncCallback.class),
+        "The last parameter should be AsyncCallback<ReturnType>.");
     check(returnClass.getTypeParameters().length == 1, "Expected exactly 1 type parameter.");
 
     ParameterizedType returnType = (ParameterizedType) paramTypes[paramTypes.length - 1];
@@ -92,7 +96,5 @@ public class RPCInvocationHandler implements InvocationHandler {
     if (!condition)
       throw new Exception(errorMessage);
   }
-
-  private String serverAddress;
 
 }

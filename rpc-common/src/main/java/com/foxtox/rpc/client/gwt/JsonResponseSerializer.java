@@ -6,6 +6,8 @@ import com.google.gwt.json.client.JSONString;
 
 public class JsonResponseSerializer implements ResponseSerializer {
 
+  private JSONObject jsonObject = new JSONObject();
+
   public byte[] serializeResult(Object result) {
     jsonObject.put("result", new JSONString(result.toString()));
     return serialize();
@@ -20,5 +22,4 @@ public class JsonResponseSerializer implements ResponseSerializer {
     return jsonObject.toString().getBytes();
   }
 
-  private JSONObject jsonObject = new JSONObject();
 }

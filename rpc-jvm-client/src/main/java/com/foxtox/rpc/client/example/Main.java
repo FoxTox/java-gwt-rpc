@@ -6,6 +6,8 @@ import com.foxtox.rpc.client.AsyncCallback;
 import com.foxtox.rpc.client.RPC;
 
 class RequestCounter {
+  
+  private Integer requestsInFly = 0;
 
   public void emitRequest() {
     editRequestsInFly(1);
@@ -33,8 +35,7 @@ class RequestCounter {
         this.notifyAll();
     }
   }
-
-  private Integer requestsInFly = 0;
+  
 }
 
 public class Main {

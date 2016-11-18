@@ -10,6 +10,8 @@ import javax.json.JsonWriter;
 import com.foxtox.rpc.common.ResponseSerializer;
 
 public class JsonResponseSerializer implements ResponseSerializer {
+  
+  private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
 
   public byte[] serializeResult(Object result) {
     requestObjectBuilder.add("result", result.toString());
@@ -29,7 +31,5 @@ public class JsonResponseSerializer implements ResponseSerializer {
     jsonWriter.close();
     return output.toByteArray();
   }
-
-  private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
 
 }

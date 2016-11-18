@@ -11,6 +11,10 @@ import com.foxtox.rpc.common.RequestSerializer;
 import com.foxtox.rpc.common.SerializableType;
 
 public class JsonRequestSerializer implements RequestSerializer {
+  
+  private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
+  private JsonArrayBuilder paramsArrayBuilder = Json.createArrayBuilder();
+  private StringBuilder paramTypesStringBuilder = new StringBuilder();
 
 	public void setServiceName(String serviceName) {
 		requestObjectBuilder.add("service", serviceName);
@@ -40,9 +44,5 @@ public class JsonRequestSerializer implements RequestSerializer {
 		jsonWriter.close();
 		return output.toByteArray();
 	}
-
-	private JsonObjectBuilder requestObjectBuilder = Json.createObjectBuilder();
-	private JsonArrayBuilder paramsArrayBuilder = Json.createArrayBuilder();
-	private StringBuilder paramTypesStringBuilder = new StringBuilder();
 
 }

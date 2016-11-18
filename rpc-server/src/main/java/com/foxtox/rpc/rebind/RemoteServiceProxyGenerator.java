@@ -18,6 +18,12 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
 public class RemoteServiceProxyGenerator extends Generator {
+  
+  private TreeLogger logger;
+  private GeneratorContext context;
+  private SourceWriter sourceWriter;
+
+  private JClassType serviceInterface;
 
   @Override
   public String generate(TreeLogger logger, GeneratorContext context, String requestedClass)
@@ -173,9 +179,11 @@ public class RemoteServiceProxyGenerator extends Generator {
     if (printWriter == null)
       return;
 
-    ClassSourceFileComposerFactory composerFactory = new ClassSourceFileComposerFactory(packageName, implName);
+    ClassSourceFileComposerFactory composerFactory = new ClassSourceFileComposerFactory(packageName,
+        implName);
 
-    String[] imports = new String[] { com.foxtox.rpc.client.gwt.JsonResponseDeserializer.class.getCanonicalName(),
+    String[] imports = new String[] {
+        com.foxtox.rpc.client.gwt.JsonResponseDeserializer.class.getCanonicalName(),
         com.foxtox.rpc.client.gwt.JsonRequestSerializer.class.getCanonicalName(),
         com.foxtox.rpc.common.ResponseDeserializer.class.getCanonicalName(),
         com.foxtox.rpc.common.RequestSerializer.class.getCanonicalName(),
@@ -200,11 +208,5 @@ public class RemoteServiceProxyGenerator extends Generator {
     logger.log(TreeLogger.Type.ERROR, errorMessage);
     throw new UnableToCompleteException();
   }
-
-  private TreeLogger logger;
-  private GeneratorContext context;
-  private SourceWriter sourceWriter;
-
-  private JClassType serviceInterface;
 
 }

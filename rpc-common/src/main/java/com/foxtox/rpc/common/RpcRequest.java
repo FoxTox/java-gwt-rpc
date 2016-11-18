@@ -1,6 +1,10 @@
 package com.foxtox.rpc.common;
 
 public class RpcRequest {
+  
+  private String serviceName;
+  private String serviceMethod;
+  private Object[] parameters;
 
   public String getServiceName() {
     return serviceName;
@@ -23,7 +27,4 @@ public class RpcRequest {
     this.parameters = parameters;
   }
 
-  private String serviceName;
-  private String serviceMethod;
-  private Object[] parameters;
 }

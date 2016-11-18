@@ -9,6 +9,10 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
 public class JsonRequestSerializer implements RequestSerializer {
+  
+  private JSONObject jsonObject = new JSONObject();
+  private JSONArray jsonParamsArray = new JSONArray();
+  private StringBuilder paramTypes = new StringBuilder();
 
   public void setServiceName(String service) {
     jsonObject.put("service", new JSONString(service));
@@ -34,9 +38,5 @@ public class JsonRequestSerializer implements RequestSerializer {
     jsonObject.put("params", params);
     return jsonObject.toString().getBytes();
   }
-
-  private JSONObject jsonObject = new JSONObject();
-  private JSONArray jsonParamsArray = new JSONArray();
-  private StringBuilder paramTypes = new StringBuilder();
 
 }

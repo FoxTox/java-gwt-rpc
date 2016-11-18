@@ -21,7 +21,7 @@ public class GwtEntryPoint implements EntryPoint {
         Window.alert("Failed to compute " + iFirst + " + " + iSecond + ". Reason:\n" + reason);
       }
     });
-    
+
     sumService.getSum(dFirst, dSecond, new AsyncCallback<Double>() {
       public void onSuccess(Double returnValue) {
         Window.alert(dFirst + " + " + dSecond + " == " + returnValue);

@@ -76,6 +76,9 @@ public enum SerializableType {
 
   private final Class<?> cls;
   private final char symbol;
+  
+  private static Map<Class<?>, SerializableType> classToType;
+  private static Map<Character, SerializableType> charToType;
 
   private SerializableType(Class<?> cls, char symbol) {
     this.cls = cls;
@@ -104,9 +107,6 @@ public enum SerializableType {
     return charToType.getOrDefault(symbol, UNSUPPORTED);
   }
 
-  private static Map<Class<?>, SerializableType> classToType;
-  private static Map<Character, SerializableType> charToType;
-
   private static void addType(Class<?> cls, SerializableType type) {
     classToType.put(cls, type);
     charToType.put(type.getSymbol(), type);
@@ -127,4 +127,5 @@ public enum SerializableType {
     addType(Double.class, DOUBLE);
     addType(String.class, STRING);
   }
+  
 }
