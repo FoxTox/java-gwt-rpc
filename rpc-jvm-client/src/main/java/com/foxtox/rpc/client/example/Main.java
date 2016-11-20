@@ -6,7 +6,7 @@ import com.foxtox.rpc.client.AsyncCallback;
 import com.foxtox.rpc.client.RPC;
 
 class RequestCounter {
-  
+
   private Integer requestsInFly = 0;
 
   public void emitRequest() {
@@ -35,21 +35,23 @@ class RequestCounter {
         this.notifyAll();
     }
   }
-  
+
 }
 
 public class Main {
   private static final String serverAddress = "http://localhost:8888";
   private static final int iFirst = 10, iSecond = 20;
   private static final double dFirst = 10.1, dSecond = 30.6;
-  
+
   public static void main(String[] args) {
-    SumServiceAsync f = (SumServiceAsync) RPC.create(SumServiceAsync.class, serverAddress);
+    SumServiceAsync sum = (SumServiceAsync) RPC.create(SumServiceAsync.class, serverAddress);
+    ConcatenationServiceAsync concat = (ConcatenationServiceAsync) RPC
+        .create(ConcatenationServiceAsync.class, serverAddress);
 
     final RequestCounter requests = new RequestCounter();
 
     requests.emitRequest();
-    f.getSum(iFirst, iSecond, new AsyncCallback<Integer>() {
+    sum.getSum(iFirst, iSecond, new AsyncCallback<Integer>() {
       public void onSuccess(Integer result) {
         System.out.println("Success: " + iFirst + " + " + iSecond + " == " + result);
         requests.completeRequest();
@@ -62,9 +64,22 @@ public class Main {
     });
 
     requests.emitRequest();
-    f.getSum(dFirst, dSecond, new AsyncCallback<Double>() {
+    sum.getSum(dFirst, dSecond, new AsyncCallback<Double>() {
       public void onSuccess(Double result) {
         System.out.println("Success: " + dFirst + " + " + dSecond + " == " + result);
+        requests.completeRequest();
+      }
+
+      public void onFailure(String reason) {
+        System.out.println("Failure: " + reason);
+        requests.completeRequest();
+      }
+    });
+
+    requests.emitRequest();
+    concat.concatenate("begin_", "end", new AsyncCallback<String>() {
+      public void onSuccess(String result) {
+        System.out.println("Concatenation: " + result);
         requests.completeRequest();
       }
 
@@ -82,5 +97,5 @@ public class Main {
       exc.printStackTrace();
     }
   }
-  
+
 }

@@ -34,7 +34,7 @@ public class RemoteServiceServlet extends HttpServlet {
   };
 
   private static final int BUFFER_SIZE = 4096;
-  
+
   private Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
 
   public RemoteServiceServlet() {
@@ -48,15 +48,23 @@ public class RemoteServiceServlet extends HttpServlet {
     }
   }
 
-  public void addService(Class<?> iface, Object impl) throws Exception {
+  // Associates the |impl| object with the |iface| service.
+  // Throws NullPointerException if either of parameters is null. Throws
+  // RuntimeException if the |impl| object does not implement |iface|, or the
+  // service is already implemented by another object.
+  // WARN: The method is not thread-safe. Call it before any request comes in.
+  protected void addService(Class<?> iface, Object impl) {
     if (iface == null || impl == null)
       throw new NullPointerException();
     if (!iface.isInstance(impl))
-      throw new Exception("Object does not implement " + iface.getCanonicalName());
+      throw new RuntimeException("Object does not implement " + iface.getCanonicalName());
     ServiceInfo info = new ServiceInfo(iface, impl);
+
     ServiceInfo service = services.putIfAbsent(iface.getCanonicalName(), info);
-    if (service != null)
-      throw new Exception("Service " + iface.getCanonicalName() + " is already implemented.");
+    if (service != null) {
+      throw new RuntimeException(
+          "Service " + iface.getCanonicalName() + " is already implemented.");
+    }
   }
 
   @Override
@@ -108,7 +116,7 @@ public class RemoteServiceServlet extends HttpServlet {
   }
 
   protected void processPost(HttpServletRequest request, HttpServletResponse response,
-      ResponseSerializer serializer) throws Exception {
+      ResponseSerializer serializer) throws IOException {
     byte[] content = readContent(request);
     RequestDeserializer deserializer = new JsonRequestDeserializer();
     RpcRequest rpcRequest = deserializer.deserialize(content);
@@ -121,16 +129,21 @@ public class RemoteServiceServlet extends HttpServlet {
 
     ServiceInfo service = services.get(rpcRequest.getServiceName());
     if (service == null) {
-      throw new Exception("Service " + rpcRequest.getServiceName() + " not found");
+      throw new RuntimeException("Service " + rpcRequest.getServiceName() + " not found");
     }
-    Method method = service.iface.getMethod(rpcRequest.getServiceMethod(), paramTypes);
-    if (method == null) {
-      throw new Exception("Method " + rpcRequest.getServiceName() + "."
+    
+    try {
+      Method method = service.iface.getMethod(rpcRequest.getServiceMethod(), paramTypes);
+      Object result = method.invoke(service.iface.cast(service.impl), params);
+      response.getOutputStream().write(serializer.serializeResult(result));
+    } catch (NoSuchMethodException exc) {
+      throw new RuntimeException("Method " + rpcRequest.getServiceName() + "."
           + rpcRequest.getServiceMethod() + " not found");
+    } catch (IOException exc) {
+      throw exc;
+    } catch (Exception exc) {
+      throw new RuntimeException("Failed to invoke method.", exc);
     }
-
-    Object result = method.invoke(service.iface.cast(service.impl), params);
-    response.getOutputStream().write(serializer.serializeResult(result));
   }
 
 }

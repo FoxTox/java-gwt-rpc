@@ -12,11 +12,14 @@ public class GwtEntryPoint implements EntryPoint {
     final Double dFirst = 10.1, dSecond = 30.6;
 
     SumServiceAsync sumService = (SumServiceAsync) GWT.create(SumService.class);
+    ConcatenationServiceAsync concatService = (ConcatenationServiceAsync) GWT
+        .create(ConcatenationService.class);
 
     sumService.getSum(iFirst, iSecond, new AsyncCallback<Integer>() {
       public void onSuccess(Integer returnValue) {
         Window.alert(iFirst + " + " + iSecond + " == " + returnValue);
       }
+
       public void onFailure(String reason) {
         Window.alert("Failed to compute " + iFirst + " + " + iSecond + ". Reason:\n" + reason);
       }
@@ -26,8 +29,19 @@ public class GwtEntryPoint implements EntryPoint {
       public void onSuccess(Double returnValue) {
         Window.alert(dFirst + " + " + dSecond + " == " + returnValue);
       }
+
       public void onFailure(String reason) {
         Window.alert("Failed to compute " + dFirst + " + " + dSecond + ". Reason:\n" + reason);
+      }
+    });
+    
+    concatService.concatenate("begin_", "end", new AsyncCallback<String>() {
+      public void onSuccess(String returnValue) {
+        Window.alert("Concatenated: " + returnValue);
+      }
+
+      public void onFailure(String reason) {
+        Window.alert("Failed to concatenate. Reason:\n" + reason);
       }
     });
   }
