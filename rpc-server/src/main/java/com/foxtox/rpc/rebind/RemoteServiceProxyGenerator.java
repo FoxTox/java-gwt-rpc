@@ -99,9 +99,10 @@ public class RemoteServiceProxyGenerator extends Generator {
     } catch (NotFoundException exc) {
       logErrorAndThrow("AsyncCallback class not found.");
     }
-    if (callbackType.getErasedType().getQualifiedSourceName() != asyncCallbackType
-        .getQualifiedSourceName())
+    if (!callbackType.getErasedType().getQualifiedSourceName()
+        .equals(asyncCallbackType.getQualifiedSourceName())) {
       logErrorAndThrow("Last method's parameter should be AsyncCallback: " + method.getName());
+    }
 
     JClassType resultType = callbackType.getTypeArgs()[0];
     SerializableType serializableResultType = null;
