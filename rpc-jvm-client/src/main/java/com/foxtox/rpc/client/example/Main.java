@@ -1,42 +1,9 @@
 package com.foxtox.rpc.client.example;
 
-import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import com.foxtox.rpc.client.AsyncCallback;
 import com.foxtox.rpc.client.RPC;
-
-class RequestCounter {
-
-  private Integer requestsInFly = 0;
-
-  public void emitRequest() {
-    editRequestsInFly(1);
-  }
-
-  public void completeRequest() {
-    editRequestsInFly(-1);
-  }
-
-  public void waitUntilAllCompleted() {
-    try {
-      synchronized (this) {
-        while (requestsInFly != 0)
-          this.wait();
-      }
-    } catch (InterruptedException exc) {
-      assert false;
-    }
-  }
-
-  private void editRequestsInFly(int delta) {
-    synchronized (this) {
-      requestsInFly += delta;
-      if (requestsInFly == 0)
-        this.notifyAll();
-    }
-  }
-
-}
 
 public class Main {
   private static final String serverAddress = "http://localhost:8888";
@@ -48,52 +15,49 @@ public class Main {
     ConcatenationServiceAsync concat = (ConcatenationServiceAsync) RPC
         .create(ConcatenationServiceAsync.class, serverAddress);
 
-    final RequestCounter requests = new RequestCounter();
+    final CountDownLatch countDown = new CountDownLatch(3);
 
-    requests.emitRequest();
     sum.getSum(iFirst, iSecond, new AsyncCallback<Integer>() {
       public void onSuccess(Integer result) {
         System.out.println("Success: " + iFirst + " + " + iSecond + " == " + result);
-        requests.completeRequest();
+        countDown.countDown();
       }
 
       public void onFailure(String reason) {
         System.out.println("Failure: " + reason);
-        requests.completeRequest();
+        countDown.countDown();
       }
     });
 
-    requests.emitRequest();
     sum.getSum(dFirst, dSecond, new AsyncCallback<Double>() {
       public void onSuccess(Double result) {
         System.out.println("Success: " + dFirst + " + " + dSecond + " == " + result);
-        requests.completeRequest();
+        countDown.countDown();
       }
 
       public void onFailure(String reason) {
         System.out.println("Failure: " + reason);
-        requests.completeRequest();
+        countDown.countDown();
       }
     });
 
-    requests.emitRequest();
     concat.concatenate("begin_", "end", new AsyncCallback<String>() {
       public void onSuccess(String result) {
         System.out.println("Concatenation: " + result);
-        requests.completeRequest();
+        countDown.countDown();
       }
 
       public void onFailure(String reason) {
         System.out.println("Failure: " + reason);
-        requests.completeRequest();
+        countDown.countDown();
       }
     });
 
-    requests.waitUntilAllCompleted();
     try {
+      countDown.await();
       RPC.terminate();
       System.out.println("RPC client terminated.");
-    } catch (IOException exc) {
+    } catch (Exception exc) {
       exc.printStackTrace();
     }
   }
