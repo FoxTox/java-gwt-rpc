@@ -76,7 +76,7 @@ public enum SerializableType {
 
   private final Class<?> cls;
   private final char symbol;
-  
+
   private static Map<Class<?>, SerializableType> classToType;
   private static Map<Character, SerializableType> charToType;
 
@@ -96,14 +96,12 @@ public enum SerializableType {
   public abstract Object parseFromString(String string);
 
   public static SerializableType getFrom(Class<?> type) {
-    if (classToType == null)
-      initializeSupportedTypes();
+    assert classToType != null;
     return classToType.getOrDefault(type, UNSUPPORTED);
   }
 
   public static SerializableType getFrom(char symbol) {
-    if (charToType == null)
-      initializeSupportedTypes();
+    assert charToType != null;
     return charToType.getOrDefault(symbol, UNSUPPORTED);
   }
 
@@ -112,7 +110,7 @@ public enum SerializableType {
     charToType.put(type.getSymbol(), type);
   }
 
-  private static void initializeSupportedTypes() {
+  static {
     classToType = new HashMap<Class<?>, SerializableType>();
     charToType = new HashMap<Character, SerializableType>();
 
@@ -127,5 +125,5 @@ public enum SerializableType {
     addType(Double.class, DOUBLE);
     addType(String.class, STRING);
   }
-  
+
 }
