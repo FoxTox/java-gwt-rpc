@@ -44,7 +44,7 @@ public class RemoteServiceServlet extends HttpServlet {
           addService(cls, this);
       }
     } catch (Exception e) {
-      assert (false);
+      assert false;
     }
   }
 

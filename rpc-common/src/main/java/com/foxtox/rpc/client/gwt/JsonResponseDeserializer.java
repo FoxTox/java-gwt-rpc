@@ -14,16 +14,16 @@ public class JsonResponseDeserializer implements ResponseDeserializer {
     RpcResponse response = new RpcResponse();
 
     JSONObject jsonObject = JSONParser.parseStrict(new String(data)).isObject();
-    assert (jsonObject != null);
+    assert jsonObject != null;
 
     JSONValue errorValue = jsonObject.get("error");
     if (errorValue != null) {
       JSONString errorString = errorValue.isString();
-      assert (errorString != null);
+      assert errorString != null;
       response.setError(errorString.stringValue());
     } else {
       JSONString result = jsonObject.get("result").isString();
-      assert (result != null);
+      assert result != null;
       response.setResult(type.parseFromString(result.stringValue()));
     }
     return response;

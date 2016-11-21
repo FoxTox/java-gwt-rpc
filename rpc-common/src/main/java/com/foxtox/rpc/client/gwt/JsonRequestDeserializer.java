@@ -16,28 +16,28 @@ public class JsonRequestDeserializer implements RequestDeserializer {
     JSONObject jsonObject = JSONParser.parseStrict(new String(data)).isObject();
 
     JSONString serviceName = jsonObject.get("service").isString();
-    assert (serviceName != null);
+    assert serviceName != null;
     request.setServiceName(serviceName.stringValue());
 
     JSONString serviceMethod = jsonObject.get("method").isString();
-    assert (serviceMethod != null);
+    assert serviceMethod != null;
     request.setServiceMethod(serviceMethod.stringValue());
 
     JSONObject params = jsonObject.get("params").isObject();
-    assert (params != null);
+    assert params != null;
     JSONString paramTypes = params.get("types").isString();
-    assert (paramTypes != null);
+    assert paramTypes != null;
     String typesString = paramTypes.stringValue();
     Object[] parameters = new Object[typesString.length()];
 
     JSONArray paramValues = params.get("values").isArray();
-    assert (paramValues != null);
-    assert (paramValues.size() == typesString.length());
+    assert paramValues != null;
+    assert paramValues.size() == typesString.length();
     for (int i = 0, size = paramValues.size(); i < size; ++i) {
       JSONString param = paramValues.get(i).isString();
-      assert (param != null);
+      assert param != null;
       SerializableType type = SerializableType.getFrom(typesString.charAt(i));
-      assert (type != SerializableType.UNSUPPORTED); // TODO: Exception.
+      assert type != SerializableType.UNSUPPORTED; // TODO: Exception.
       parameters[i] = type.parseFromString(param.stringValue());
     }
     request.setParameters(parameters);

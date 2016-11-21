@@ -68,7 +68,7 @@ public class RPCInvocationHandler implements InvocationHandler {
               SerializableType responseType = SerializableType.getFrom(actualReturnClass);
               RpcResponse rpcResponse = deserializer.deserialize(responseType, requestData);
 
-              assert (rpcResponse.getType() != RpcResponse.Type.UNDEFINED);
+              assert rpcResponse.getType() != RpcResponse.Type.UNDEFINED;
               if (rpcResponse.getType() == RpcResponse.Type.SUCCESS) {
                 callback.onSuccess(rpcResponse.getResult());
               } else {

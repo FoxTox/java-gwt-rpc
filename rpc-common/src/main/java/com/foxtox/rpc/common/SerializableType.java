@@ -8,6 +8,7 @@ public enum SerializableType {
   UNSUPPORTED(null, 'U') {
     @Override
     public Object parseFromString(String string) {
+      assert false;
       return null;
     }
   },
