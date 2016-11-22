@@ -75,19 +75,19 @@ public enum SerializableType {
     }
   };
 
-  private final Class<?> cls;
+  private final Class<?> clazz;
   private final char symbol;
 
   private static Map<Class<?>, SerializableType> classToType;
   private static Map<Character, SerializableType> charToType;
 
-  private SerializableType(Class<?> cls, char symbol) {
-    this.cls = cls;
+  private SerializableType(Class<?> clazz, char symbol) {
+    this.clazz = clazz;
     this.symbol = symbol;
   }
 
   public Class<?> getNativeClass() {
-    return cls;
+    return clazz;
   }
 
   public char getSymbol() {
@@ -106,25 +106,18 @@ public enum SerializableType {
     return charToType.getOrDefault(symbol, UNSUPPORTED);
   }
 
-  private static void addType(Class<?> cls, SerializableType type) {
-    classToType.put(cls, type);
-    charToType.put(type.getSymbol(), type);
-  }
-
   static {
     classToType = new HashMap<Class<?>, SerializableType>();
     charToType = new HashMap<Character, SerializableType>();
 
-    addType(Void.class, VOID);
-    addType(Boolean.class, BOOLEAN);
-    addType(Byte.class, BYTE);
-    addType(Character.class, CHARACTER);
-    addType(Short.class, SHORT);
-    addType(Integer.class, INTEGER);
-    addType(Long.class, LONG);
-    addType(Float.class, FLOAT);
-    addType(Double.class, DOUBLE);
-    addType(String.class, STRING);
+    for (SerializableType type : SerializableType.values()) {
+      if (type == SerializableType.UNSUPPORTED)
+        continue;
+
+      assert type.getNativeClass() != null;
+      classToType.put(type.getNativeClass(), type);
+      charToType.put(type.getSymbol(), type);
+    }
   }
 
 }
