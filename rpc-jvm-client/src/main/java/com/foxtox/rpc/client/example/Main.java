@@ -6,7 +6,7 @@ import com.foxtox.rpc.client.AsyncCallback;
 import com.foxtox.rpc.client.RPC;
 
 public class Main {
-  private static final String serverAddress = "http://localhost:8888";
+  private static final String serverAddress = "http://localhost:8080";
   private static final int iFirst = 10, iSecond = 20;
   private static final double dFirst = 10.1, dSecond = 30.6;
 
