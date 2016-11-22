@@ -37,32 +37,26 @@ public class RemoteServiceServlet extends HttpServlet {
 
   private Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
 
-  public RemoteServiceServlet() {
-    try {
-      for (Class<?> cls : getClass().getInterfaces()) {
-        if (cls.getCanonicalName().endsWith("Service"))
-          addService(cls, this);
-      }
-    } catch (Exception e) {
-      assert false;
+  public void init() throws ServletException {
+    for (Class<?> cls : getClass().getInterfaces()) {
+      if (cls.getCanonicalName().endsWith("Service"))
+        addService(cls, this);
     }
   }
 
   // Associates the |impl| object with the |iface| service.
-  // Throws NullPointerException if either of parameters is null. Throws
-  // RuntimeException if the |impl| object does not implement |iface|, or the
-  // service is already implemented by another object.
-  // WARN: The method is not thread-safe. Call it before any request comes in.
-  protected void addService(Class<?> iface, Object impl) {
+  // Throws ServletException if failed to add the service.
+  // WARN: This method is allowed to call only during initialization.
+  protected void addService(Class<?> iface, Object impl) throws ServletException {
     if (iface == null || impl == null)
-      throw new NullPointerException();
+      throw new ServletException(new NullPointerException());
     if (!iface.isInstance(impl))
-      throw new RuntimeException("Object does not implement " + iface.getCanonicalName());
+      throw new ServletException("Object does not implement " + iface.getCanonicalName());
     ServiceInfo info = new ServiceInfo(iface, impl);
 
     ServiceInfo service = services.putIfAbsent(iface.getCanonicalName(), info);
     if (service != null) {
-      throw new RuntimeException(
+      throw new ServletException(
           "Service " + iface.getCanonicalName() + " is already implemented.");
     }
   }
@@ -131,7 +125,7 @@ public class RemoteServiceServlet extends HttpServlet {
     if (service == null) {
       throw new RuntimeException("Service " + rpcRequest.getServiceName() + " not found");
     }
-    
+
     try {
       Method method = service.iface.getMethod(rpcRequest.getServiceMethod(), paramTypes);
       Object result = method.invoke(service.iface.cast(service.impl), params);

@@ -34,7 +34,7 @@ public class GwtEntryPoint implements EntryPoint {
         Window.alert("Failed to compute " + dFirst + " + " + dSecond + ". Reason:\n" + reason);
       }
     });
-    
+
     concatService.concatenate("begin_", "end", new AsyncCallback<String>() {
       public void onSuccess(String returnValue) {
         Window.alert("Concatenated: " + returnValue);

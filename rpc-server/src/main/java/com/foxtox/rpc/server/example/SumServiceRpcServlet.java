@@ -1,5 +1,6 @@
 package com.foxtox.rpc.server.example;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 import com.foxtox.rpc.client.example.ConcatenationService;
@@ -10,7 +11,9 @@ import com.foxtox.rpc.server.RemoteServiceServlet;
 @WebServlet(urlPatterns = { "/sum", "/concatenate" })
 public class SumServiceRpcServlet extends RemoteServiceServlet implements SumService {
 
-  public SumServiceRpcServlet() {
+  public void init() throws ServletException {
+    super.init();
+    
     addService(ConcatenationService.class, new ConcatenationService() {
       public String concatenate(String first, String second) {
         return first.concat(second);
