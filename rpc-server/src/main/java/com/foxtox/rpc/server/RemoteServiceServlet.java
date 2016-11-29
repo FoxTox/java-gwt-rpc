@@ -35,7 +35,14 @@ public class RemoteServiceServlet extends HttpServlet {
 
   private static final int BUFFER_SIZE = 4096;
 
-  private Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
+  // Maps service name to its implementation.
+  // The map is initialized during init() and used in read-only mode by
+  // doGet/doPost. Since requests are likely to be processed in different
+  // threads, it is necessary to publish the field correctly, unless memory
+  // synchronization is guaranteed between init and doGet/doPost by the Servlet
+  // itself. Use volatile for now to be on the safe side.
+  // TODO: Figure out Servlet guarantees and possibly get rid of volatile.
+  private volatile Map<String, ServiceInfo> services = new HashMap<String, ServiceInfo>();
 
   public void init() throws ServletException {
     for (Class<?> cls : getClass().getInterfaces()) {
